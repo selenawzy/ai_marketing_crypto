@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Marketplace</title>
+    <style>
+        body {
+            width: 350px;
+            min-height: 400px;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            opacity: 0.8;
+            margin: 5px 0 0 0;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
+        .status-indicator.inactive {
+            background: #ef4444;
+        }
+
+        .status-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.7;
+            margin: 2px 0 0 0;
+        }
+
+        .button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .button-primary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .button-primary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .button-secondary {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .button-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .content-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .content-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .content-title {
+            font-weight: 500;
+            margin: 0 0 5px 0;
+        }
+
+        .content-price {
+            opacity: 0.8;
+            font-size: 11px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">AI</div>
+            <h1 class="title">AgentMarket</h1>
+            <p class="subtitle">Monetize your content</p>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <div id="main-content" class="hidden">
+            <div class="status-card">
+                <div class="status-header">
+                    <span class="status-text">Content Protection</span>
+                    <div id="status-indicator" class="status-indicator"></div>
+                </div>
+                <div class="stats">
+                    <div class="stat">
+                        <p id="content-count" class="stat-value">0</p>
+                        <p class="stat-label">Protected Pages</p>
+                    </div>
+                    <div class="stat">
+                        <p id="total-revenue" class="stat-value">0 ETH</p>
+                        <p class="stat-label">Total Revenue</p>
+                    </div>
+                </div>
+            </div>
+
+            <button id="connect-wallet" class="button button-primary">
+                Connect Wallet
+            </button>
+
+            <button id="manage-content" class="button button-secondary">
+                Manage Content
+            </button>
+
+            <button id="view-analytics" class="button button-secondary">
+                View Analytics
+            </button>
+
+            <div class="content-list" id="content-list">
+                <!-- Content items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html> 
