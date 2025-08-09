@@ -2,14 +2,11 @@ const knex = require('knex');
 
 const dbConfig = {
   development: {
-    client: 'postgresql',
+    client: 'sqlite3',
     connection: {
-      host: process.env.DATABASE_HOST || 'localhost',
-      port: process.env.DATABASE_PORT || 5432,
-      database: process.env.DATABASE_NAME || 'ai_marketplace',
-      user: process.env.DATABASE_USER || 'postgres',
-      password: process.env.DATABASE_PASSWORD || 'password',
+      filename: './dev-database.sqlite'
     },
+    useNullAsDefault: true,
     pool: {
       min: 2,
       max: 10

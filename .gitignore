@@ -1,0 +1,68 @@
+# OS
+.DS_Store
+
+# Node
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+debug.log
+
+# Env files (keep example)
+.env
+*.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.*.local
+!.env.example
+
+# Logs
+logs/
+**/logs/
+*.log
+*.pid
+*.pid.lock
+.backend.pid
+.frontend.pid
+
+# Build outputs
+build/
+**/build/
+dist/
+**/dist/
+coverage/
+**/coverage/
+.tmp/
+.temp/
+
+# Frontend
+frontend/build/
+frontend/.next/
+frontend/coverage/
+
+# Backend
+backend/dist/
+backend/logs/
+
+# Smart contracts (Hardhat)
+smart-contracts/artifacts/
+smart-contracts/cache/
+smart-contracts/typechain-types/
+smart-contracts/coverage/
+smart-contracts/coverage.json
+
+# Extension
+extension/dist/
+
+# Editors/IDE
+.vscode/
+.idea/
+*.swp
+
+# Deploy/hosting
+.vercel/
+.netlify/ 

@@ -3,9 +3,15 @@ const redis = require('redis');
 let redisClient = null;
 
 const connectRedis = async () => {
+  // Skip Redis connection if REDIS_URL is not set (development mode)
+  if (!process.env.REDIS_URL) {
+    console.log('Redis URL not provided, skipping Redis connection (development mode)');
+    return null;
+  }
+
   try {
     redisClient = redis.createClient({
-      url: process.env.REDIS_URL || 'redis://localhost:6379',
+      url: process.env.REDIS_URL,
       retry_strategy: (options) => {
         if (options.error && options.error.code === 'ECONNREFUSED') {
           return new Error('The server refused the connection');
@@ -48,6 +54,10 @@ const getRedisClient = () => {
 };
 
 const setCache = async (key, value, expireTime = 3600) => {
+  if (!redisClient) {
+    // Skip caching in development mode
+    return true;
+  }
   try {
     const client = getRedisClient();
     await client.setEx(key, expireTime, JSON.stringify(value));
@@ -59,6 +69,10 @@ const setCache = async (key, value, expireTime = 3600) => {
 };
 
 const getCache = async (key) => {
+  if (!redisClient) {
+    // No cache in development mode
+    return null;
+  }
   try {
     const client = getRedisClient();
     const value = await client.get(key);

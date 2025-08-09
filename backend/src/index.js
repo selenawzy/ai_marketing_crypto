@@ -14,6 +14,8 @@ const contentRoutes = require('./routes/content');
 const paymentRoutes = require('./routes/payments');
 const aiAgentRoutes = require('./routes/aiAgents');
 const analyticsRoutes = require('./routes/analytics');
+const onrampRoutes = require('./routes/onramp');
+const cdpRoutes = require('./routes/cdp');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -54,6 +56,8 @@ app.use('/api/content', contentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/ai-agents', aiAgentRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/onramp', onrampRoutes);
+app.use('/api/cdp', cdpRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
