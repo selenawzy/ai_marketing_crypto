@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 // Set the base URL for all API requests
-axios.defaults.baseURL = 'http://localhost:3001';
+// Use environment variable in production, fallback to localhost for development
+const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:3003';
+axios.defaults.baseURL = baseURL;
 
 // Add request interceptor to include auth token
 axios.interceptors.request.use(
