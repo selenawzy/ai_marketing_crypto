@@ -118,22 +118,22 @@ const WalletConnect: React.FC = () => {
     return (
       <div className="flex items-center space-x-3">
         {/* Connected Status */}
-        <div className="border rounded-lg px-4 py-2 flex items-center bg-green-50 border-green-200">
-          <div className="w-2 h-2 rounded-full mr-2 animate-pulse bg-green-500"></div>
-          <span className="text-sm font-medium text-green-800">
+        <div className="border rounded-lg px-4 py-2 flex items-center bg-green-500/10 border-green-500/30 backdrop-blur-sm">
+          <div className="w-2 h-2 rounded-full mr-2 animate-pulse bg-green-400"></div>
+          <span className="text-sm font-medium text-green-300">
             {formatAddress(account)}
           </span>
         </div>
 
         {/* Network Badge with Switch Button */}
         <div className="flex items-center space-x-2">
-          <div className={`border rounded-lg px-3 py-1 ${
+          <div className={`border rounded-lg px-3 py-1 backdrop-blur-sm ${
             chainId === 84532 
-              ? 'bg-blue-50 border-blue-200' 
-              : 'bg-orange-50 border-orange-200'
+              ? 'bg-blue-500/10 border-blue-500/30' 
+              : 'bg-orange-500/10 border-orange-500/30'
           }`}>
             <span className={`text-xs font-medium ${
-              chainId === 84532 ? 'text-blue-800' : 'text-orange-800'
+              chainId === 84532 ? 'text-blue-300' : 'text-orange-300'
             }`}>
               {networkName}
             </span>
@@ -143,7 +143,7 @@ const WalletConnect: React.FC = () => {
           {chainId !== 84532 && (
             <button
               onClick={handleSwitchToBaseSepolia}
-              className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-3 py-1 rounded-lg font-medium transition-colors"
+              className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-3 py-1 rounded-lg font-medium transition-colors shadow-lg"
               title="Switch to Base Sepolia Testnet"
             >
               Switch to Base Sepolia
@@ -153,8 +153,8 @@ const WalletConnect: React.FC = () => {
 
         {/* Balance */}
         {balance && (
-          <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1">
-            <span className="text-xs font-medium text-gray-700">
+          <div className="bg-white/10 border border-white/20 rounded-lg px-3 py-1 backdrop-blur-sm">
+            <span className="text-xs font-medium text-white/90">
               {parseFloat(balance).toFixed(3)} ETH
             </span>
           </div>
@@ -163,7 +163,7 @@ const WalletConnect: React.FC = () => {
         {/* Disconnect Button */}
         <button
           onClick={handleDisconnect}
-          className="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          className="text-white/70 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors backdrop-blur-sm"
           title="Disconnect Wallet"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,7 +185,7 @@ const WalletConnect: React.FC = () => {
           <>
             <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             Connecting...
           </>

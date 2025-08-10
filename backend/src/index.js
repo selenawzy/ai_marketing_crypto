@@ -20,7 +20,7 @@ const onrampRoutes = require('./routes/onramp');
 const cdpRoutes = require('./routes/cdp');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3006;
 
 // Security middleware
 app.use(helmet());
@@ -28,9 +28,10 @@ app.use(cors({
   origin: function(origin, callback) {
     const allowedOrigins = [
       'http://localhost:3000',
-      'http://localhost:3001', 
-      'http://localhost:3002',
-      'http://localhost:3003'
+      'http://localhost:3003',
+      'http://localhost:3004',
+      'http://localhost:3005',
+      'http://localhost:3006'
     ];
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
@@ -78,16 +79,32 @@ app.use('/api/curator-agent', curatorAgentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/onramp', onrampRoutes);
 app.use('/api/cdp', cdpRoutes);
+app.use('/api/dashboard', require('./routes/dashboard'));
 
 // Error handling middleware
 app.use(errorHandler);
 
-// 404 handler
+// Serve frontend for non-API routes (client-side routing)
 app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found'
-  });
+  // If it's an API route, return 404
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({
+      success: false,
+      message: 'API route not found'
+    });
+  }
+  
+  // Check if this is a proxy request from the frontend
+  if (req.headers.host && req.headers.host.includes('3005')) {
+    // This is a frontend request, don't redirect it
+    return res.status(404).json({
+      success: false,
+      message: 'Route not found'
+    });
+  }
+  
+  // For direct backend requests, redirect to frontend
+  res.redirect(`http://localhost:3005/`);
 });
 
 // Start server

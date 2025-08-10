@@ -10,12 +10,20 @@ const router = express.Router();
 router.post('/deploy', protect, async (req, res) => {
   try {
     console.log('🚀 Real agent deployment request from user:', req.user.id);
+    console.log('📝 Request body:', req.body);
     
-    const agentConfig = {
-      name: req.body.name || 'Real AI Marketing Agent',
-      description: req.body.description || 'Autonomous AI agent with blockchain capabilities',
-      capabilities: req.body.capabilities || []
-    };
+    // Extract agent config from request body (handle both nested and direct structures)
+    const agentConfig = req.body.agentConfig || req.body;
+    
+    console.log('🔧 Agent config extracted:', agentConfig);
+    
+    // Validate required fields
+    if (!agentConfig.name || !agentConfig.description) {
+      return res.status(400).json({
+        success: false,
+        message: 'Agent name and description are required'
+      });
+    }
     
     const result = await realAgentService.deployRealAgent(req.user.id, agentConfig);
     

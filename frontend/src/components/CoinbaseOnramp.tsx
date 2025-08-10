@@ -3,6 +3,7 @@ import { useWeb3 } from '../contexts/Web3Context';
 import { ethers } from 'ethers';
 import { getNetworkConfig } from '../config/networks';
 import { initOnRamp } from '@coinbase/cbpay-js';
+import axios from '../api/axiosConfig';
 
 interface OnrampProps {
   contentId?: number;
@@ -50,21 +51,15 @@ const CoinbaseOnramp: React.FC<OnrampProps> = ({
       
       // First, get session token from backend
       console.log('🎫 Requesting session token...');
-      const tokenResponse = await fetch('/api/onramp/session-token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          walletAddress: account
-        })
+      const tokenResponse = await axios.post('/api/onramp/session-token', {
+        walletAddress: account
       });
 
-      if (!tokenResponse.ok) {
-        throw new Error('Failed to get session token');
+      if (!tokenResponse.data.success || !tokenResponse.data.data.sessionToken) {
+        throw new Error('Invalid session token response');
       }
 
-      const tokenData = await tokenResponse.json();
+      const tokenData = tokenResponse.data;
       if (!tokenData.success || !tokenData.data.sessionToken) {
         throw new Error('Invalid session token response');
       }
@@ -90,7 +85,8 @@ const CoinbaseOnramp: React.FC<OnrampProps> = ({
         ? 'https://pay-sandbox.coinbase.com'
         : 'https://pay.coinbase.com';
       
-      const onrampUrl: string = `${baseUrl}/buy?` +
+      // Use correct sandbox URL format: /?sessionToken=<token>&<other params>
+      const onrampUrl: string = `${baseUrl}/?` +
         `sessionToken=${encodeURIComponent(sessionToken)}&` +
         `defaultAsset=USDC&` +
         `defaultNetwork=base&` +
@@ -420,7 +416,7 @@ const CoinbaseOnramp: React.FC<OnrampProps> = ({
                 <>
                   <svg className="animate-spin -ml-1 mr-3 h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   Opening Coinbase Onramp...
                 </>
@@ -452,7 +448,7 @@ const CoinbaseOnramp: React.FC<OnrampProps> = ({
                 <>
                   <svg className="animate-spin -ml-1 mr-3 h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   Processing Transaction...
                 </>

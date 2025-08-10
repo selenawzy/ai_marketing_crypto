@@ -4,6 +4,18 @@ import { useAuth } from '../contexts/AuthContext';
 import { useWeb3 } from '../contexts/Web3Context';
 import { getNetworkConfig } from '../config/networks';
 import WalletConnect from '../components/WalletConnect';
+import { 
+  BoltIcon, 
+  CpuChipIcon, 
+  CreditCardIcon, 
+  ChartBarIcon,
+  ArrowRightIcon,
+  PlayIcon,
+  SparklesIcon,
+  RocketLaunchIcon,
+  ShieldCheckIcon,
+  GlobeAltIcon
+} from '@heroicons/react/24/outline';
 
 const Home: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -12,244 +24,283 @@ const Home: React.FC = () => {
 
   const features = [
     {
-      icon: '⚡',
-      title: 'Pay-Per-Use AI Agents',
-      description: 'Only pay when you use an AI agent. No monthly subscriptions or hidden fees - transparent blockchain transactions.'
+      icon: BoltIcon,
+      title: 'Pay-Per-Use AI',
+      description: 'No subscriptions, only pay when you use AI agents. Transparent pricing with no hidden fees.',
+      gradient: 'from-blue-500 to-cyan-500'
     },
     {
-      icon: '🤖',
-      title: 'Specialized Marketing AI', 
-      description: 'Access expert AI agents for content creation, SEO analysis, social media strategy, and campaign optimization.'
+      icon: CpuChipIcon,
+      title: 'Marketing AI', 
+      description: 'Content creation, SEO optimization, social media strategy, and market analysis.',
+      gradient: 'from-purple-500 to-pink-500'
     },
     {
-      icon: '💳',
-      title: 'Instant Blockchain Payments',
-      description: 'Secure payments via Coinbase Wallet or MetaMask on Base Sepolia testnet. Transactions confirmed on-chain.'
+      icon: CreditCardIcon,
+      title: 'Blockchain Payments',
+      description: 'Secure USDC payments on Base Sepolia with instant settlement and no chargebacks.',
+      gradient: 'from-emerald-500 to-green-500'
     },
     {
-      icon: '📊',
+      icon: ChartBarIcon,
       title: 'Real AI Performance',
-      description: 'Get actual AI-generated marketing strategies and content, not pre-written templates or generic responses.'
+      description: 'Actual AI responses powered by advanced language models, not pre-written templates.',
+      gradient: 'from-orange-500 to-red-500'
     }
   ];
 
   const agentCategories = [
-    { name: 'Content Creation AI', icon: '✍️', description: 'Generate blog posts, social media content, and ad copy with AI assistance.', price: '$0.25/call', features: 'Real AI responses' },
-    { name: 'Marketing Strategy', icon: '📊', description: 'Get comprehensive marketing strategies and campaign optimization advice.', price: '$0.50/call', features: 'Expert-level analysis' },
-    { name: 'Social Media Manager', icon: '📱', description: 'Analyze trends, optimize posting schedules, and create viral content strategies.', price: '$0.35/call', features: 'Platform-specific insights' },
-    { name: 'SEO Specialist', icon: '🔍', description: 'Keyword research, technical SEO analysis, and competitor insights.', price: '$0.75/call', features: 'Detailed SEO reports' },
-    { name: 'Email Marketing', icon: '📧', description: 'Create email sequences, optimize subject lines, and improve open rates.', price: '$0.40/call', features: 'Conversion optimization' },
-    { name: 'Market Research', icon: '🎯', description: 'Market analysis, competitor research, and customer insights.', price: '$0.85/call', features: 'Data-driven insights' }
+    { 
+      name: 'Content Creation', 
+      price: '$0.25', 
+      unit: 'per call',
+      description: 'Blog posts, articles, copywriting',
+      color: 'from-cyan-400 via-blue-500 to-indigo-600',
+      icon: '✍️'
+    },
+    { 
+      name: 'Marketing Strategy', 
+      price: '$0.50', 
+      unit: 'per call',
+      description: 'Campaign planning, audience analysis',
+      color: 'from-purple-400 via-pink-500 to-rose-600',
+      icon: '🎯'
+    },
+    { 
+      name: 'Social Media', 
+      price: '$0.35', 
+      unit: 'per call',
+      description: 'Posts, engagement, hashtag strategy',
+      color: 'from-green-400 via-emerald-500 to-teal-600',
+      icon: '📱'
+    },
+    { 
+      name: 'SEO Specialist', 
+      price: '$0.75', 
+      unit: 'per call',
+      description: 'Keyword research, optimization',
+      color: 'from-orange-400 via-red-500 to-pink-600',
+      icon: '🔍'
+    },
+    { 
+      name: 'Email Marketing', 
+      price: '$0.40', 
+      unit: 'per call',
+      description: 'Newsletters, automation sequences',
+      color: 'from-indigo-400 via-purple-500 to-violet-600',
+      icon: '📧'
+    },
+    { 
+      name: 'Market Research', 
+      price: '$0.85', 
+      unit: 'per call',
+      description: 'Competitor analysis, trends',
+      color: 'from-yellow-400 via-orange-500 to-red-600',
+      icon: '📊'
+    }
+  ];
+
+  const stats = [
+    { value: '100+', label: 'AI Agents', color: 'text-cyan-400', icon: '🤖' },
+    { value: '24/7', label: 'Availability', color: 'text-pink-400', icon: '⏰' },
+    { value: '0%', label: 'Setup Fees', color: 'text-green-400', icon: '💸' },
+    { value: 'Instant', label: 'Access', color: 'text-yellow-400', icon: '⚡' }
+  ];
+
+  const benefits = [
+    {
+      icon: SparklesIcon,
+      title: 'Cutting-Edge AI',
+      description: 'Powered by the latest language models and AI technologies'
+    },
+    {
+      icon: RocketLaunchIcon,
+      title: 'Lightning Fast',
+      description: 'Get AI responses in seconds, not hours or days'
+    },
+    {
+      icon: ShieldCheckIcon,
+      title: 'Enterprise Security',
+      description: 'Bank-level security with blockchain verification'
+    },
+    {
+      icon: GlobeAltIcon,
+      title: 'Global Scale',
+      description: 'Available worldwide with 99.9% uptime guarantee'
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <header className="bg-white/90 backdrop-blur-sm shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      {/* Enhanced Background Elements */}
+      <div className="fixed inset-0 opacity-20">
+        <div className="absolute top-0 -left-4 w-96 h-96 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
+        <div className="absolute top-0 -right-4 w-96 h-96 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-float animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-96 h-96 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-float animation-delay-4000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full mix-blend-multiply filter blur-2xl animate-pulse-slow"></div>
+      </div>
+
+      {/* Enhanced Header */}
+      <header className="relative bg-black/30 backdrop-blur-2xl border-b border-white/10 shadow-2xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-20">
             <div className="flex items-center">
-              <div className="h-8 w-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-                <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h1 className="text-xl font-semibold text-gray-900">Crypto Agent Marketplace</h1>
+              <Link to="/" className="flex items-center group">
+                <div className="h-14 w-14 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mr-4 shadow-2xl shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all duration-500 group-hover:scale-110">
+                  <BoltIcon className="h-8 w-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-indigo-400 bg-clip-text text-transparent">
+                    AI Agent Marketplace
+                  </h1>
+                  <p className="text-white/60 text-sm font-medium">Powered by Coinbase AgentKit</p>
+                </div>
+              </Link>
             </div>
-            <nav className="flex space-x-4 items-center">
-              <Link to="/browse" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+            <nav className="flex space-x-2 items-center">
+              <Link to="/browse" className="nav-link">
                 Browse Agents
               </Link>
-              <Link to="/demo/pay-per-call" className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium font-semibold">
-                🤖 Try Demo
+              <Link to="/demo/pay-per-call" className="nav-link">
+                Try Demo
               </Link>
               {isAuthenticated ? (
                 <>
-                  <Link to="/dashboard" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                  <Link to="/dashboard" className="nav-link">
                     Dashboard
                   </Link>
-                  <Link to="/agents/create" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                  <Link to="/agents/create" className="nav-link">
                     Create Agent
                   </Link>
                   <WalletConnect />
                   
-                  {/* User Profile Section */}
+                  {/* Enhanced User Profile Section */}
                   <div className="flex items-center space-x-3 ml-4">
-                    <img
-                      className="h-8 w-8 rounded-full bg-gray-200"
-                      src={`https://ui-avatars.com/api/?name=${user?.username}&background=6366f1&color=fff`}
-                      alt={user?.username}
-                    />
-                    <div className="hidden sm:block">
-                      <div className="text-sm font-medium text-gray-700">{user?.username}</div>
-                      <div className="text-xs text-gray-500">{user?.email}</div>
+                    <div className="relative">
+                      <img
+                        className="h-10 w-10 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 p-0.5 shadow-lg"
+                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'user'}`}
+                        alt={user?.username || 'User'}
+                      />
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-slate-950"></div>
                     </div>
-                    <button
-                      onClick={logout}
-                      className="text-gray-400 hover:text-gray-600 p-1"
-                      title="Logout"
-                    >
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                      </svg>
-                    </button>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-white">{user?.username || 'User'}</p>
+                      <button
+                        onClick={logout}
+                        className="text-xs text-white/60 hover:text-white transition-colors font-medium"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
                   </div>
                 </>
               ) : (
-                <>
-                  <Link 
-                    to="/auth" 
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                  >
-                    Login / Sign Up
+                <div className="flex space-x-4">
+                  <Link to="/auth" className="btn-secondary">
+                    Sign In
                   </Link>
-                </>
+                  <Link to="/auth" className="btn-primary">
+                    Get Started
+                  </Link>
+                </div>
               )}
             </nav>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center">
-            <div className="flex justify-center mb-8">
-              <div className="h-16 w-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <svg className="h-10 w-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">
-              Crypto Agent Marketplace
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Pay-per-use AI marketing agents with blockchain payments. Try real AI assistants and pay only when you use them - no subscriptions required.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <Link
-                to="/demo/pay-per-call"
-                className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-blue-600 text-white px-8 py-4 rounded-xl hover:from-green-700 hover:to-blue-700 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                🤖 Try Pay-Per-Call Demo
-              </Link>
-              {isAuthenticated ? (
-                <>
-                  <Link
-                    to="/browse"
-                    className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                  >
-                    🔍 Browse All Agents
-                  </Link>
-                  <Link
-                    to="/dashboard"
-                    className="w-full sm:w-auto border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 font-semibold text-lg"
-                  >
-                    📊 Go to Dashboard
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/auth"
-                    className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                  >
-                    🚀 Get Started Free
-                  </Link>
-                  <Link
-                    to="/browse"
-                    className="w-full sm:w-auto border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 font-semibold text-lg"
-                  >
-                    🔍 Browse Agents
-                  </Link>
-                </>
-              )}
-            </div>
-
-            <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
-              <div className="flex items-center">
-                <div className="h-2 w-2 bg-green-500 rounded-full mr-2"></div>
-                <span>Powered by {networkConfig.name}</span>
-              </div>
-              <div className="flex items-center">
-                <div className="h-2 w-2 bg-blue-500 rounded-full mr-2"></div>
-                <span>USDC Payments</span>
-              </div>
-              <div className="flex items-center">
-                <div className="h-2 w-2 bg-purple-500 rounded-full mr-2"></div>
-                <span>Web3 Native</span>
-              </div>
+      {/* Enhanced Hero Section */}
+      <section className="relative pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="mb-8">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/30 text-blue-400 text-sm font-medium mb-6">
+              <SparklesIcon className="h-4 w-4 mr-2" />
+              The Future of AI Marketing is Here
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Why Pay-Per-Use AI Makes Sense?
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              No monthly subscriptions. No setup fees. Pay only when you actually use an AI agent. Transparent blockchain transactions you can verify.
-            </p>
+          
+          <h1 className="heading-xl mb-8 text-white">
+            AI Agents for
+            <span className="text-gradient block mt-2"> Modern Marketing</span>
+          </h1>
+          
+          <p className="text-body-lg max-w-4xl mx-auto mb-12 text-white/80 leading-relaxed">
+            Access professional AI marketing agents on-demand. No subscriptions, no setup fees. 
+            Pay only for what you use with secure blockchain payments on Base Sepolia.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
+            <Link to="/browse" className="btn-primary btn-lg group">
+              Explore Agents
+              <ArrowRightIcon className="ml-3 h-6 w-6 group-hover:translate-x-2 transition-transform duration-300" />
+            </Link>
+            <Link to="/demo/pay-per-call" className="btn-secondary btn-lg group">
+              <PlayIcon className="mr-3 h-6 w-6" />
+              Try Demo
+            </Link>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="text-center p-6 rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-2">
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+          
+          {/* Enhanced Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center group">
+                <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">{stat.icon}</div>
+                <div className={`text-4xl font-bold ${stat.color} mb-2`}>{stat.value}</div>
+                <div className="text-white/70 text-sm font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-20 bg-gradient-to-br from-blue-50 to-purple-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Available AI Marketing Agents
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Specialized AI assistants for different marketing tasks. Try them now with pay-per-use pricing.
+      {/* Enhanced Features Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="heading-lg mb-6 text-white">Why Choose Our Platform</h2>
+            <p className="text-body max-w-3xl mx-auto text-white/70">
+              Built for modern businesses that need flexible, scalable AI solutions without the complexity
             </p>
           </div>
+          
+          <div className="grid-responsive">
+            {features.map((feature, index) => (
+              <div key={index} className="feature-card group">
+                <div className={`w-20 h-20 bg-gradient-to-r ${feature.gradient} rounded-2xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-500 shadow-xl`}>
+                  <feature.icon className="h-10 w-10 text-white" />
+                </div>
+                <h3 className="heading-sm mb-4 text-white">{feature.title}</h3>
+                <p className="text-body-sm text-white/70 leading-relaxed">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {agentCategories.map((agent, index) => (
-              <div key={index} className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-3xl">{agent.icon}</div>
-                    <div className="bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1 rounded-full">
-                      {agent.price}
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">{agent.name}</h3>
-                  <p className="text-gray-600 mb-3">{agent.description}</p>
-                  <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-3 rounded-lg mb-4">
-                    <p className="text-purple-700 text-sm font-medium">🔗 {agent.features}</p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Link
-                      to="/browse"
-                      className="flex-1 text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-semibold"
-                    >
-                      View Agents
-                    </Link>
-                    <button className="bg-gray-100 text-gray-700 py-3 px-3 rounded-lg hover:bg-gray-200 transition-colors">
-                      🧪 Demo
-                    </button>
+      {/* Enhanced Agent Categories */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="heading-lg mb-6 text-white">Popular Agent Categories</h2>
+            <p className="text-body max-w-3xl mx-auto text-white/70">
+              Find the perfect AI agent for your specific marketing needs with transparent pricing
+            </p>
+          </div>
+          
+          <div className="grid-responsive">
+            {agentCategories.map((category, index) => (
+              <div key={index} className="action-card group">
+                <div className={`w-full h-40 bg-gradient-to-r ${category.color} rounded-2xl mb-6 flex items-center justify-center relative overflow-hidden`}>
+                  <div className="text-6xl mb-2">{category.icon}</div>
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all duration-500"></div>
+                </div>
+                <div className="text-center">
+                  <h3 className="text-xl font-bold text-white mb-3">{category.name}</h3>
+                  <p className="text-white/60 text-sm mb-4">{category.description}</p>
+                  <div className="flex items-center justify-center space-x-1">
+                    <span className="text-3xl font-bold text-white">{category.price}</span>
+                    <span className="text-white/60 text-sm">{category.unit}</span>
                   </div>
                 </div>
               </div>
@@ -258,89 +309,106 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div className="p-8">
-              <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                100%
+      {/* New Benefits Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="heading-lg mb-6 text-white">Built for the Future</h2>
+            <p className="text-body max-w-3xl mx-auto text-white/70">
+              Our platform combines cutting-edge AI technology with enterprise-grade infrastructure
+            </p>
+          </div>
+          
+          <div className="grid-responsive">
+            {benefits.map((benefit, index) => (
+              <div key={index} className="stats-card text-center group">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+                  <benefit.icon className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="heading-sm mb-4 text-white">{benefit.title}</h3>
+                <p className="text-body-sm text-white/70 leading-relaxed">{benefit.description}</p>
               </div>
-              <div className="text-lg text-gray-600">Decentralized</div>
-              <div className="text-sm text-gray-500 mt-2">No middlemen, direct payments</div>
-            </div>
-            <div className="p-8">
-              <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                0%
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Enhanced CTA Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="card p-12 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10"></div>
+            <div className="relative z-10">
+              <h2 className="heading-lg mb-8 text-white">Ready to Transform Your Marketing?</h2>
+              <p className="text-body-lg mb-10 text-white/80 max-w-3xl mx-auto leading-relaxed">
+                Join thousands of businesses already using AI agents to scale their marketing efforts and stay ahead of the competition
+              </p>
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                <Link to="/auth" className="btn-primary btn-lg group">
+                  Start Building Today
+                  <RocketLaunchIcon className="ml-3 h-6 w-6 group-hover:translate-x-2 transition-transform duration-300" />
+                </Link>
+                <Link to="/browse" className="btn-outline btn-lg">
+                  Browse All Agents
+                </Link>
               </div>
-              <div className="text-lg text-gray-600">Agent Fees</div>
-              <div className="text-sm text-gray-500 mt-2">Pay only for usage</div>
-            </div>
-            <div className="p-8">
-              <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                24/7
-              </div>
-              <div className="text-lg text-gray-600">Global Access</div>
-              <div className="text-sm text-gray-500 mt-2">Available worldwide, anytime</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">
-            Ready to Deploy AI Agents?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-            Join the decentralized AI economy where agents are owned as NFTs, training is community-driven, and performance is guaranteed by smart contracts. 
-            Mint your first agent NFT in less than 2 minutes.
-          </p>
-          
-          {!isAuthenticated && (
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link
-                to="/auth"
-                className="w-full sm:w-auto bg-white text-blue-600 px-8 py-4 rounded-xl hover:bg-gray-50 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                🚀 Create Account
-              </Link>
-              <Link
-                to="/browse"
-                className="w-full sm:w-auto border-2 border-white text-white px-8 py-4 rounded-xl hover:bg-white hover:text-blue-600 transition-all duration-300 font-semibold text-lg"
-              >
-                🤖 View AI Agents
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center mb-4 md:mb-0">
-              <div className="h-8 w-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-                <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+      {/* Enhanced Footer */}
+      <footer className="border-t border-white/10 bg-black/40 backdrop-blur-2xl">
+        <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center mb-6">
+                <div className="h-12 w-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mr-4">
+                  <BoltIcon className="h-7 w-7 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-white">AI Agent Marketplace</h3>
               </div>
-              <span className="text-xl font-semibold">Crypto Agent Marketplace</span>
+              <p className="text-white/60 mb-6 max-w-lg leading-relaxed">
+                The future of AI-powered marketing is here. Access professional AI agents on-demand with secure blockchain payments and transparent pricing.
+              </p>
+              <div className="flex space-x-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">AI</span>
+                </div>
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">ML</span>
+                </div>
+                <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">BC</span>
+                </div>
+              </div>
             </div>
             
-            <div className="flex items-center space-x-6 text-sm text-gray-400">
-              <span>Built on {networkConfig.name}</span>
-              <span>•</span>
-              <span>Powered by Web3</span>
-              <span>•</span>
-              <span>Secure & Decentralized</span>
+            <div>
+              <h4 className="text-white font-semibold mb-6 text-lg">Platform</h4>
+              <ul className="space-y-3">
+                <li><Link to="/browse" className="text-white/60 hover:text-white transition-colors duration-300 hover:translate-x-1 inline-block">Browse Agents</Link></li>
+                <li><Link to="/demo/pay-per-call" className="text-white/60 hover:text-white transition-colors duration-300 hover:translate-x-1 inline-block">Demo</Link></li>
+                <li><Link to="/dashboard" className="text-white/60 hover:text-white transition-colors duration-300 hover:translate-x-1 inline-block">Dashboard</Link></li>
+                <li><Link to="/agents/create" className="text-white/60 hover:text-white transition-colors duration-300 hover:translate-x-1 inline-block">Create Agent</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-white font-semibold mb-6 text-lg">Support</h4>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-white/60 hover:text-white transition-colors duration-300 hover:translate-x-1 inline-block">Documentation</a></li>
+                <li><a href="#" className="text-white/60 hover:text-white transition-colors duration-300 hover:translate-x-1 inline-block">API Reference</a></li>
+                <li><a href="#" className="text-white/60 hover:text-white transition-colors duration-300 hover:translate-x-1 inline-block">Contact</a></li>
+                <li><a href="#" className="text-white/60 hover:text-white transition-colors duration-300 hover:translate-x-1 inline-block">Status</a></li>
+              </ul>
             </div>
           </div>
           
-          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm text-gray-400">
-            <p>© 2024 Crypto Agent Marketplace. Empowering creators with blockchain technology.</p>
+          <div className="border-t border-white/10 mt-12 pt-8 text-center">
+            <p className="text-white/40 text-sm">
+              © 2024 AI Agent Marketplace. Built with modern web technologies and blockchain innovation.
+            </p>
           </div>
         </div>
       </footer>

@@ -83,13 +83,14 @@ router.post('/generate-url', async (req, res) => {
 
     // Check if this is a demo wallet or development environment
     const isDemoWallet = value.destinationWallet === '0x1234567890123456789012345678901234567890';
-    const isDevMode = process.env.COINBASE_ENVIRONMENT === 'sandbox' || !process.env.COINBASE_ONRAMP_APP_ID || process.env.COINBASE_ONRAMP_APP_ID.includes('demo');
+    // Only treat as demo mode if it's the specific demo wallet, not just because it's sandbox
+    const isDevMode = isDemoWallet;
     
     console.log(`🔍 Generate URL - Demo wallet: ${isDemoWallet}, Dev mode: ${isDevMode}, wallet: ${value.destinationWallet}, appId: ${process.env.COINBASE_ONRAMP_APP_ID}`);
     
     let onrampUrl;
-    if (isDemoWallet || isDevMode) {
-      // Return demo mode response
+    if (isDemoWallet) {
+      // Return demo mode response only for the specific demo wallet
       return res.json({
         success: true,
         data: {

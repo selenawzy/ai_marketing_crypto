@@ -176,21 +176,21 @@ const PayPerCallAgent: React.FC<PayPerCallAgentProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
+    <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-xl p-6 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-bold text-gray-900">🤖 {agentName}</h3>
+        <h3 className="text-xl font-bold text-white">🤖 {agentName}</h3>
         <div className="text-right">
-          <div className="text-sm text-gray-600">Price per call</div>
-          <div className="text-lg font-bold text-blue-600">{pricePerCall} USDC</div>
+          <div className="text-sm text-white/70">Price per call</div>
+          <div className="text-lg font-bold text-blue-400">{pricePerCall} USDC</div>
         </div>
       </div>
 
       {/* Usage Stats */}
       {callCount > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-          <div className="flex justify-between text-sm">
-            <span>Calls made: <strong>{callCount}</strong></span>
-            <span>Total spent: <strong>{totalSpent} USDC</strong></span>
+        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-4">
+          <div className="flex justify-between text-sm text-white/90">
+            <span>Calls made: <strong className="text-blue-300">{callCount}</strong></span>
+            <span>Total spent: <strong className="text-blue-300">{totalSpent} USDC</strong></span>
           </div>
         </div>
       )}
@@ -204,14 +204,14 @@ const PayPerCallAgent: React.FC<PayPerCallAgentProps> = ({
 
       {/* Prompt Input */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-white/90 mb-2">
           Ask the AI Agent
         </label>
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="e.g., 'Create a marketing strategy for my startup', 'Write SEO content for my product', etc."
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-3 py-2 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white/5 text-white placeholder-white/50"
           rows={3}
         />
       </div>
@@ -222,15 +222,15 @@ const PayPerCallAgent: React.FC<PayPerCallAgentProps> = ({
         disabled={loading || !prompt.trim() || !account}
         className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center ${
           account && prompt.trim() && !loading
-            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg'
-            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
+            : 'bg-white/10 text-white/50 cursor-not-allowed border border-white/20'
         }`}
       >
         {loading ? (
           <>
             <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             Processing Payment...
           </>
@@ -245,20 +245,20 @@ const PayPerCallAgent: React.FC<PayPerCallAgentProps> = ({
 
       {/* AI Response */}
       {response && (
-        <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg">
+        <div className="mt-6 p-4 bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/30 rounded-lg">
           <div className="flex items-center mb-2">
-            <span className="text-green-600 font-semibold">✅ AI Response</span>
-            <span className="ml-auto text-xs text-gray-500">Call #{callCount}</span>
+            <span className="text-green-400 font-semibold">✅ AI Response</span>
+            <span className="ml-auto text-xs text-white/50">Call #{callCount}</span>
           </div>
-          <p className="text-gray-800 leading-relaxed">{response}</p>
+          <p className="text-white/90 leading-relaxed">{response}</p>
         </div>
       )}
 
       {/* Creator Info */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <div className="flex justify-between items-center text-sm text-gray-600">
+      <div className="mt-4 pt-4 border-t border-white/20">
+        <div className="flex justify-between items-center text-sm text-white/70">
           <span>Creator earnings go to:</span>
-          <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+          <span className="font-mono bg-white/10 px-2 py-1 rounded text-white/90 border border-white/20">
             {creatorWallet.slice(0, 8)}...{creatorWallet.slice(-6)}
           </span>
         </div>

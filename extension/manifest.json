@@ -10,7 +10,7 @@
     "webNavigation"
   ],
   "host_permissions": [
-    "http://localhost:3001/*",
+            "http://localhost:3003/*",
     "https://api.aimarketplace.com/*"
   ],
   "background": {

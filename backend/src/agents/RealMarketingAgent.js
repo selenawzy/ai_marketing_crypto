@@ -11,8 +11,9 @@ const { ethers } = require('ethers');
  */
 class RealMarketingAgent {
   constructor(apiKeyName, privateKey) {
-    this.apiKeyName = apiKeyName;
-    this.privateKey = privateKey;
+    // Use the environment variables directly if not passed
+    this.apiKeyName = apiKeyName || process.env.CDP_API_KEY_NAME;
+    this.privateKey = privateKey || process.env.CDP_API_KEY_PRIVATE_KEY;
     this.wallet = null;
     this.contractAddress = null;
     this.contract = null;
@@ -52,11 +53,38 @@ class RealMarketingAgent {
     try {
       console.log('🤖 Initializing Real AI Marketing Agent...');
       
+      // Check if required environment variables are set
+      if (!this.apiKeyName || !this.privateKey) {
+        console.warn('⚠️ Missing required environment variables for real deployment:');
+        console.warn('   - CDP_API_KEY_NAME:', this.apiKeyName ? '✅ Set' : '❌ Missing');
+        console.warn('   - CDP_SECRET_API_KEY:', this.privateKey ? '✅ Set' : '❌ Missing');
+        console.warn('🔄 Falling back to demo mode...');
+        
+        // Generate a demo wallet address
+        const demoWalletAddress = '0x' + require('crypto').randomBytes(20).toString('hex');
+        
+        console.log('✅ Agent initialized in demo mode');
+        console.log('💰 Demo wallet:', demoWalletAddress);
+        
+        return {
+          success: true,
+          wallet: demoWalletAddress,
+          capabilities: this.capabilities,
+          mode: 'demo',
+          note: 'Running in demo mode due to missing environment variables'
+        };
+      }
+      
       // Configure Coinbase SDK
-      Coinbase.configure({
-        apiKeyName: this.apiKeyName,
-        privateKey: this.privateKey
-      });
+      try {
+        Coinbase.configure({
+          apiKeyName: this.apiKeyName,
+          privateKey: this.privateKey
+        });
+      } catch (configError) {
+        console.error('❌ Failed to configure Coinbase SDK:', configError);
+        throw new Error(`Coinbase SDK configuration failed: ${configError.message}`);
+      }
       
       // Create or import wallet
       this.wallet = await this.createWallet();
@@ -67,7 +95,8 @@ class RealMarketingAgent {
       return {
         success: true,
         wallet: this.wallet.getDefaultAddress(),
-        capabilities: this.capabilities
+        capabilities: this.capabilities,
+        mode: 'real'
       };
       
     } catch (error) {
@@ -102,7 +131,27 @@ class RealMarketingAgent {
    */
   async deploySmartContract() {
     try {
-      console.log('📤 Deploying REAL AI Agent smart contract to Base Sepolia...');
+      console.log('📤 Deploying AI Agent smart contract...');
+      
+      // Check if we're in demo mode
+      if (!this.wallet || typeof this.wallet.getDefaultAddress === 'function') {
+        console.log('🔄 Demo mode detected, generating demo contract...');
+        
+        // Generate a demo contract address
+        this.contractAddress = '0x' + require('crypto').randomBytes(20).toString('hex');
+        
+        return {
+          success: true,
+          contractAddress: this.contractAddress,
+          explorerUrl: `https://sepolia.basescan.org/address/${this.contractAddress}`,
+          note: 'Demo mode - contract simulation successful',
+          mode: 'demo',
+          message: 'Agent deployed in demo mode. Set environment variables for real deployment.'
+        };
+      }
+      
+      // Real deployment path
+      console.log('🚀 Attempting real contract deployment to Base Sepolia...');
       
       // Use the real contract deployment script
       const { deployRealContract } = require('../scripts/deployRealContract');
@@ -110,6 +159,9 @@ class RealMarketingAgent {
       
       if (!deployment.success) {
         console.log('⚠️ Real deployment requires funding. Using demo mode.');
+        console.log('📝 Deployment message:', deployment.message);
+        console.log('💰 Wallet to fund:', deployment.walletAddress);
+        console.log('🔗 Faucet URL:', deployment.faucetUrl);
         
         // Generate a demo contract address for now
         this.contractAddress = '0x' + require('crypto').randomBytes(20).toString('hex');
@@ -120,7 +172,9 @@ class RealMarketingAgent {
           explorerUrl: `https://sepolia.basescan.org/address/${this.contractAddress}`,
           note: 'Demo mode - fund the wallet for real deployment',
           fundingRequired: deployment.walletAddress,
-          faucetUrl: deployment.faucetUrl
+          faucetUrl: deployment.faucetUrl,
+          message: deployment.message,
+          mode: 'demo'
         };
       }
       
@@ -135,7 +189,8 @@ class RealMarketingAgent {
         contractAddress: this.contractAddress,
         explorerUrl: deployment.explorerUrl,
         transactionHash: deployment.transactionHash,
-        note: 'REAL contract deployed to Base Sepolia!'
+        note: 'REAL contract deployed to Base Sepolia!',
+        mode: 'real'
       };
       
     } catch (error) {

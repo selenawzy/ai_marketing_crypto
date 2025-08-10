@@ -29,58 +29,58 @@ const ErrorNotification: React.FC<ErrorNotificationProps> = ({
     if (errorMessage.includes('insufficient funds') || errorMessage.includes('balance')) {
       return {
         icon: '💳',
-        bgColor: 'bg-orange-50',
-        borderColor: 'border-orange-200',
-        textColor: 'text-orange-800',
-        iconColor: 'text-orange-600',
-        buttonColor: 'hover:bg-orange-100'
+        bgColor: 'bg-orange-500/10',
+        borderColor: 'border-orange-500/30',
+        textColor: 'text-orange-300',
+        iconColor: 'text-orange-400',
+        buttonColor: 'hover:bg-orange-500/20'
       };
     }
     if (errorMessage.includes('rejected') || errorMessage.includes('denied')) {
       return {
         icon: '🚫',
-        bgColor: 'bg-yellow-50',
-        borderColor: 'border-yellow-200',
-        textColor: 'text-yellow-800',
-        iconColor: 'text-yellow-600',
-        buttonColor: 'hover:bg-yellow-100'
+        bgColor: 'bg-yellow-500/10',
+        borderColor: 'border-yellow-500/30',
+        textColor: 'text-yellow-300',
+        iconColor: 'text-yellow-400',
+        buttonColor: 'hover:bg-yellow-500/20'
       };
     }
     if (errorMessage.includes('network') || errorMessage.includes('chain')) {
       return {
         icon: '🌐',
-        bgColor: 'bg-blue-50',
-        borderColor: 'border-blue-200',
-        textColor: 'text-blue-800',
-        iconColor: 'text-blue-600',
-        buttonColor: 'hover:bg-blue-100'
+        bgColor: 'bg-blue-500/10',
+        borderColor: 'border-blue-500/30',
+        textColor: 'text-blue-300',
+        iconColor: 'text-blue-400',
+        buttonColor: 'hover:bg-blue-500/20'
       };
     }
     if (errorMessage.includes('install') || errorMessage.includes('wallet')) {
       return {
         icon: '👛',
-        bgColor: 'bg-purple-50',
-        borderColor: 'border-purple-200',
-        textColor: 'text-purple-800',
-        iconColor: 'text-purple-600',
-        buttonColor: 'hover:bg-purple-100'
+        bgColor: 'bg-purple-500/10',
+        borderColor: 'border-purple-500/30',
+        textColor: 'text-purple-300',
+        iconColor: 'text-purple-400',
+        buttonColor: 'hover:bg-purple-500/20'
       };
     }
     // Default error style
     return {
       icon: '⚠️',
-      bgColor: 'bg-red-50',
-      borderColor: 'border-red-200',
-      textColor: 'text-red-800',
-      iconColor: 'text-red-600',
-      buttonColor: 'hover:bg-red-100'
+      bgColor: 'bg-red-500/10',
+      borderColor: 'border-red-500/30',
+      textColor: 'text-red-300',
+      iconColor: 'text-red-400',
+      buttonColor: 'hover:bg-red-500/20'
     };
   };
 
   const style = getErrorStyle(error);
 
   return (
-    <div className={`${style.bgColor} ${style.borderColor} border rounded-lg p-4 mb-4 shadow-sm`}>
+    <div className={`${style.bgColor} ${style.borderColor} border rounded-lg p-4 mb-4 shadow-lg backdrop-blur-sm`}>
       <div className="flex items-start">
         <div className={`flex-shrink-0 ${style.iconColor} text-xl mr-3 mt-0.5`}>
           {style.icon}

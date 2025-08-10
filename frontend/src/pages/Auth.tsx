@@ -77,40 +77,53 @@ const Auth: React.FC = () => {
     }
   };
 
+  const features = [
+    { icon: '🎯', title: 'Create Content', description: 'Monetize your articles' },
+    { icon: '💰', title: 'Earn Crypto', description: 'Get paid in USDC on Base' },
+    { icon: '🔒', title: 'Web3 Powered', description: 'Secure blockchain transactions' }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      {/* Animated Background */}
+      <div className="fixed inset-0 opacity-20">
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
+        <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
+      </div>
+
+      <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Header */}
         <div className="text-center">
-          <Link to="/" className="inline-block">
-            <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-4 hover:shadow-lg transition-shadow">
-              <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <Link to="/" className="inline-block group">
+            <div className="mx-auto h-20 w-20 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-cyan-500/25 group-hover:shadow-cyan-500/40 transition-all duration-300">
+              <svg className="h-10 w-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
           </Link>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            <Link to="/" className="hover:text-blue-600 transition-colors">
-              AI Marketing Crypto
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-2">
+            <Link to="/" className="hover:from-cyan-500 hover:to-blue-500 transition-all duration-300">
+              AI Agent Marketplace
             </Link>
           </h2>
-          <p className="text-gray-600">
+          <p className="text-purple-300">
             {isLogin ? 'Sign in to your account' : 'Create your account'}
           </p>
         </div>
 
         {/* Wallet Connection Status */}
-        <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-700">Web3 Wallet</h3>
+        <div className="bg-black/40 backdrop-blur-xl rounded-2xl border border-purple-500/30 p-6 shadow-2xl">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium text-cyan-400">Web3 Wallet</h3>
             {isConnected && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
                 Connected
               </span>
             )}
           </div>
           <WalletConnect />
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-purple-300 mt-3">
             {isConnected 
               ? "Your wallet will be linked to your account" 
               : "Connect your wallet for seamless transactions"}
@@ -118,7 +131,7 @@ const Auth: React.FC = () => {
         </div>
 
         {/* Auth Form */}
-        <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
+        <div className="bg-black/40 backdrop-blur-xl rounded-2xl border border-purple-500/30 p-8 shadow-2xl">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <ErrorNotification 
               error={error} 
@@ -128,7 +141,7 @@ const Auth: React.FC = () => {
             />
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-cyan-400 mb-2">
                 Email address
               </label>
               <input
@@ -138,14 +151,14 @@ const Auth: React.FC = () => {
                 required
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 bg-black/30 border border-purple-500/30 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-white placeholder-purple-300/50 transition-all duration-200"
                 placeholder="you@example.com"
               />
             </div>
 
             {!isLogin && (
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="username" className="block text-sm font-medium text-cyan-400 mb-2">
                   Username
                 </label>
                 <input
@@ -155,14 +168,14 @@ const Auth: React.FC = () => {
                   required
                   value={formData.username}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 bg-black/30 border border-purple-500/30 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-white placeholder-purple-300/50 transition-all duration-200"
                   placeholder="Your unique username"
                 />
               </div>
             )}
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-cyan-400 mb-2">
                 Password
               </label>
               <input
@@ -172,14 +185,14 @@ const Auth: React.FC = () => {
                 required
                 value={formData.password}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 bg-black/30 border border-purple-500/30 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-white placeholder-purple-300/50 transition-all duration-200"
                 placeholder="••••••••"
               />
             </div>
 
             {!isLogin && (
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-cyan-400 mb-2">
                   Confirm Password
                 </label>
                 <input
@@ -189,7 +202,7 @@ const Auth: React.FC = () => {
                   required
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 bg-black/30 border border-purple-500/30 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-white placeholder-purple-300/50 transition-all duration-200"
                   placeholder="••••••••"
                 />
               </div>
@@ -198,13 +211,13 @@ const Auth: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-md hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+              className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-3 px-4 rounded-xl hover:from-cyan-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transform hover:-translate-y-1"
             >
               {loading ? (
                 <div className="flex items-center justify-center">
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   {isLogin ? 'Signing in...' : 'Creating account...'}
                 </div>
@@ -226,7 +239,7 @@ const Auth: React.FC = () => {
                     confirmPassword: '',
                   });
                 }}
-                className="text-sm text-blue-600 hover:text-blue-500"
+                className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
               >
                 {isLogin 
                   ? "Don't have an account? Sign up" 
@@ -238,26 +251,45 @@ const Auth: React.FC = () => {
 
         {/* Features */}
         <div className="text-center space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">Why join us?</h3>
+          <h3 className="text-lg font-semibold text-cyan-400">Why join us?</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-              <div className="text-2xl mb-2">🎯</div>
-              <div className="font-medium text-gray-900">Create Content</div>
-              <div className="text-gray-600">Monetize your articles and data</div>
-            </div>
-            <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-              <div className="text-2xl mb-2">💰</div>
-              <div className="font-medium text-gray-900">Earn Crypto</div>
-              <div className="text-gray-600">Get paid in USDC on Base</div>
-            </div>
-            <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-              <div className="text-2xl mb-2">🔒</div>
-              <div className="font-medium text-gray-900">Web3 Powered</div>
-              <div className="text-gray-600">Secure blockchain transactions</div>
-            </div>
+            {features.map((feature, index) => (
+              <div key={index} className="bg-black/40 backdrop-blur-xl rounded-xl p-4 border border-purple-500/30 hover:border-cyan-500/50 transition-all duration-200">
+                <div className="text-2xl mb-2">{feature.icon}</div>
+                <div className="font-medium text-cyan-400">{feature.title}</div>
+                <div className="text-purple-300">{feature.description}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
+
+      {/* Animation CSS */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes blob {
+          0% {
+            transform: translate(0px, 0px) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+          100% {
+            transform: translate(0px, 0px) scale(1);
+          }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}} />
     </div>
   );
 };

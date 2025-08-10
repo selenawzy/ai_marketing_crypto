@@ -46,7 +46,7 @@ class ContentProtector {
             this.userSettings = {
                 enabled: result.enabled || false,
                 protectedContent: result.protectedContent || [],
-                apiEndpoint: result.apiEndpoint || 'http://localhost:3001',
+                apiEndpoint: result.apiEndpoint || 'http://localhost:3003',
                 userToken: result.userToken || null
             };
             

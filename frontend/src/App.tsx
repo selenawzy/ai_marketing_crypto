@@ -7,6 +7,7 @@ import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
 import CreateAgent from './pages/CreateAgent';
 import Browse from './pages/Browse';
+import Agents from './pages/Agents';
 import ContentDetail from './pages/ContentDetail';
 import AgentDetail from './pages/AgentDetail';
 import PayPerCallDemo from './pages/PayPerCallDemo';
@@ -22,6 +23,7 @@ function App() {
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/browse" element={<Browse />} />
+            <Route path="/agents" element={<Agents />} />
             <Route path="/buy-crypto" element={<BuyCrypto />} />
             <Route path="/agents/:id" element={<AgentDetail />} />
             <Route path="/content/:id" element={<ContentDetail />} />

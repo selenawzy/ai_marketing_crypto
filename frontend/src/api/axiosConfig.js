@@ -1,9 +1,14 @@
 import axios from 'axios';
 
+<<<<<<< Updated upstream
 // Set the base URL for all API requests
 // Use environment variable in production, fallback to localhost for development
 const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:3003';
 axios.defaults.baseURL = baseURL;
+=======
+// Proxy is configured in package.json, so we use relative URLs
+// axios.defaults.baseURL = 'http://localhost:3003';
+>>>>>>> Stashed changes
 
 // Add request interceptor to include auth token
 axios.interceptors.request.use(

@@ -14,16 +14,15 @@ class RealAgentService {
       console.log('🚀 Deploying real AI agent for user:', userId);
       
       // Create agent instance
-      const agent = new RealMarketingAgent(
-        process.env.CDP_API_KEY_NAME,
-        process.env.CDP_SECRET_API_KEY
-      );
+      const agent = new RealMarketingAgent();
       
       // Initialize agent
       const initResult = await agent.initialize();
+      console.log('✅ Agent initialized:', initResult.mode || 'unknown mode');
       
       // Deploy smart contract
       const contractResult = await agent.deploySmartContract();
+      console.log('✅ Contract deployed:', contractResult.mode || 'unknown mode');
       
       // Store in database
       const agentData = {
@@ -36,7 +35,7 @@ class RealAgentService {
         capabilities: JSON.stringify(initResult.capabilities),
         is_active: true,
         is_deployed: true,
-        deployment_status: 'deployed',
+        deployment_status: contractResult.mode === 'real' ? 'deployed' : 'demo',
         created_at: new Date()
       };
       
@@ -45,7 +44,8 @@ class RealAgentService {
       // Store agent instance in memory
       this.agents.set(agentId, agent);
       
-      console.log('✅ Real AI agent deployed successfully');
+      console.log('✅ AI agent deployment completed successfully');
+      console.log('📊 Deployment mode:', contractResult.mode || 'unknown');
       
       return {
         success: true,
@@ -53,7 +53,10 @@ class RealAgentService {
         walletAddress: initResult.wallet,
         contractAddress: contractResult.contractAddress,
         explorerUrl: contractResult.explorerUrl,
-        capabilities: initResult.capabilities
+        capabilities: initResult.capabilities,
+        mode: contractResult.mode || 'unknown',
+        note: contractResult.note || 'Agent deployed successfully',
+        message: contractResult.message || 'Deployment completed'
       };
       
     } catch (error) {
