@@ -6,14 +6,58 @@ const { db } = require('../config/database');
 
 const router = express.Router();
 
+// @route   POST /api/onramp/session-token
+// @desc    Generate session token for secure Coinbase Onramp initialization
+// @access  Public
+router.post('/session-token', async (req, res) => {
+  try {
+    const { walletAddress } = req.body;
+
+    if (!walletAddress) {
+      return res.status(400).json({
+        success: false,
+        message: 'Wallet address is required'
+      });
+    }
+
+    // For now, we'll generate a simple session token
+    // In production, this should be a proper JWT or similar secure token
+    const sessionToken = await coinbaseOnrampService.generateSessionToken({
+      walletAddress,
+      timestamp: Date.now(),
+      appId: process.env.COINBASE_ONRAMP_APP_ID || 'de44a0ba-d4ff-432c-85e7-e70336fe4837'
+    });
+
+    res.json({
+      success: true,
+      data: {
+        sessionToken,
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString() // 30 minutes
+      }
+    });
+  } catch (error) {
+    console.error('Generate session token error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error generating session token'
+    });
+  }
+});
+
 // Validation schemas
 const generateOnrampUrlSchema = Joi.object({
   destinationWallet: Joi.string().required(),
   presetCryptoAmount: Joi.string().optional(),
   presetFiatAmount: Joi.string().optional(),
-  cryptoCurrencyCode: Joi.string().default('USDC'),
-  fiatCurrencyCode: Joi.string().default('USD'),
-  country: Joi.string().default('US'),
+  defaultAsset: Joi.string().default('USDC'),
+  fiatCurrency: Joi.string().default('USD'),
+  defaultNetwork: Joi.string().default('base'),
+  partnerUserId: Joi.string().max(50).optional(),
+  defaultExperience: Joi.string().valid('buy', 'send').default('buy'),
+  defaultPaymentMethod: Joi.string().optional(),
+  redirectUrl: Joi.string().optional(),
+  handlingRequestUrl: Joi.string().optional(),
+  theme: Joi.string().valid('light', 'dark').optional(),
   contentId: Joi.number().integer().optional()
 });
 
@@ -57,7 +101,18 @@ router.post('/generate-url', async (req, res) => {
       });
     }
     
-    onrampUrl = coinbaseOnrampService.generateOnrampUrl(value);
+    // Generate session token first
+    const sessionToken = await coinbaseOnrampService.generateSessionToken({
+      walletAddress: value.destinationWallet,
+      timestamp: Date.now(),
+      appId: process.env.COINBASE_ONRAMP_APP_ID || 'de44a0ba-d4ff-432c-85e7-e70336fe4837'
+    });
+    
+    // Include session token in the URL generation
+    onrampUrl = coinbaseOnrampService.generateOnrampUrl({
+      ...value,
+      sessionToken
+    });
 
     // Log the onramp request
     if (value.contentId) {
@@ -159,6 +214,26 @@ router.get('/supported-currencies', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Server error'
+    });
+  }
+});
+
+// @route   GET /api/onramp/options
+// @desc    Get Onramp options including asset UUIDs and payment methods
+// @access  Public
+router.get('/options', async (req, res) => {
+  try {
+    const options = await coinbaseOnrampService.getOnrampOptions();
+    
+    res.json({
+      success: true,
+      data: options
+    });
+  } catch (error) {
+    console.error('Get Onramp options error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get Onramp options'
     });
   }
 });

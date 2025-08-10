@@ -1,37 +1,16 @@
 const redis = require('redis');
 
 let redisClient = null;
+let disabled = false;
 
 const connectRedis = async () => {
-  // Skip Redis connection if REDIS_URL is not set (development mode)
-  if (!process.env.REDIS_URL) {
-    console.log('Redis URL not provided, skipping Redis connection (development mode)');
-    return null;
-  }
-
   try {
-    redisClient = redis.createClient({
-      url: process.env.REDIS_URL,
-      retry_strategy: (options) => {
-        if (options.error && options.error.code === 'ECONNREFUSED') {
-          return new Error('The server refused the connection');
-        }
-        if (options.total_retry_time > 1000 * 60 * 60) {
-          return new Error('Retry time exhausted');
-        }
-        if (options.attempt > 10) {
-          return undefined;
-        }
-        return Math.min(options.attempt * 100, 3000);
-      }
-    });
+    const url = process.env.REDIS_URL || 'redis://localhost:6379';
+    redisClient = redis.createClient({ url });
 
     redisClient.on('error', (err) => {
-      console.error('Redis Client Error:', err);
-    });
-
-    redisClient.on('connect', () => {
-      console.log('Redis Client Connected');
+      console.warn('Redis not available, continuing without cache:', err.message);
+      disabled = true;
     });
 
     redisClient.on('ready', () => {
@@ -41,66 +20,61 @@ const connectRedis = async () => {
     await redisClient.connect();
     return redisClient;
   } catch (error) {
-    console.error('Redis connection failed:', error);
-    throw error;
+    console.warn('Redis connection failed, continuing without cache:', error.message);
+    disabled = true;
+    return null;
   }
 };
 
 const getRedisClient = () => {
-  if (!redisClient) {
-    throw new Error('Redis client not initialized. Call connectRedis() first.');
-  }
+  if (disabled || !redisClient) return null;
   return redisClient;
 };
 
 const setCache = async (key, value, expireTime = 3600) => {
-  if (!redisClient) {
-    // Skip caching in development mode
-    return true;
-  }
+  if (disabled) return false;
   try {
     const client = getRedisClient();
+    if (!client) return false;
     await client.setEx(key, expireTime, JSON.stringify(value));
     return true;
-  } catch (error) {
-    console.error('Redis set error:', error);
+  } catch {
     return false;
   }
 };
 
 const getCache = async (key) => {
-  if (!redisClient) {
-    // No cache in development mode
-    return null;
-  }
+  if (disabled) return null;
   try {
     const client = getRedisClient();
+    if (!client) return null;
     const value = await client.get(key);
     return value ? JSON.parse(value) : null;
-  } catch (error) {
-    console.error('Redis get error:', error);
+  } catch {
     return null;
   }
 };
 
 const deleteCache = async (key) => {
+  if (disabled) return false;
   try {
     const client = getRedisClient();
+    if (!client) return false;
     await client.del(key);
     return true;
-  } catch (error) {
-    console.error('Redis delete error:', error);
+  } catch {
     return false;
   }
 };
 
 const clearCache = async () => {
+  if (disabled) return false;
   try {
     const client = getRedisClient();
+    if (!client) return false;
     await client.flushAll();
     return true;
-  } catch (error) {
-    console.error('Redis clear error:', error);
+  } catch {
     return false;
   }
 };

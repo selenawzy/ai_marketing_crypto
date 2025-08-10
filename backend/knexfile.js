@@ -1,31 +1,33 @@
 require('dotenv').config();
 
+const shared = {
+  migrations: { directory: './migrations' },
+  seeds: { directory: './seeds' },
+};
+
 module.exports = {
   development: {
+    ...shared,
     client: 'sqlite3',
     connection: {
-      filename: process.env.DATABASE_URL || './dev-database.sqlite'
+      filename: './dev-database.sqlite'
     },
     useNullAsDefault: true,
-    migrations: {
-      directory: './migrations'
-    },
-    seeds: {
-      directory: './seeds'
-    }
+    pool: { min: 2, max: 10 }
   },
-
-  production: {
-    client: 'sqlite3',
+  test: {
+    ...shared,
     connection: {
-      filename: process.env.DATABASE_URL || './production-database.sqlite'
+      host: process.env.DATABASE_HOST || 'localhost',
+      port: process.env.DATABASE_PORT || 5432,
+      database: process.env.DATABASE_NAME || 'ai_marketplace_test',
+      user: process.env.DATABASE_USER || 'postgres',
+      password: process.env.DATABASE_PASSWORD || 'password',
     },
-    useNullAsDefault: true,
-    migrations: {
-      directory: './migrations'
-    },
-    seeds: {
-      directory: './seeds'
-    }
-  }
+  },
+  production: {
+    ...shared,
+    connection: process.env.DATABASE_URL,
+    pool: { min: 2, max: 20 },
+  },
 };

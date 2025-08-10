@@ -13,6 +13,8 @@ const authRoutes = require('./routes/auth');
 const contentRoutes = require('./routes/content');
 const paymentRoutes = require('./routes/payments');
 const aiAgentRoutes = require('./routes/aiAgents');
+const agentRoutes = require('./routes/agents');
+const curatorAgentRoutes = require('./routes/curatorAgent');
 const analyticsRoutes = require('./routes/analytics');
 const onrampRoutes = require('./routes/onramp');
 const cdpRoutes = require('./routes/cdp');
@@ -23,7 +25,22 @@ const PORT = process.env.PORT || 3001;
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001', 
+      'http://localhost:3002',
+      'http://localhost:3003'
+    ];
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
@@ -55,6 +72,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/ai-agents', aiAgentRoutes);
+app.use('/api/real-agents', require('./routes/realAgents'));
+app.use('/api/agents', agentRoutes);
+app.use('/api/curator-agent', curatorAgentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/onramp', onrampRoutes);
 app.use('/api/cdp', cdpRoutes);
@@ -77,9 +97,8 @@ const startServer = async () => {
     await connectDB();
     console.log('✅ Database connected successfully');
 
-    // Connect to Redis
-    await connectRedis();
-    console.log('✅ Redis connected successfully');
+    // Connect to Redis (optional) - disabled for now
+    console.warn('⚠️ Redis disabled, continuing without cache');
 
     // Start server
     app.listen(PORT, () => {

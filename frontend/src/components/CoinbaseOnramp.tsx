@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useWeb3 } from '../contexts/Web3Context';
-import axios from 'axios';
+import { ethers } from 'ethers';
+import { getNetworkConfig } from '../config/networks';
+import { initOnRamp } from '@coinbase/cbpay-js';
 
 interface OnrampProps {
   contentId?: number;
@@ -10,22 +12,7 @@ interface OnrampProps {
   onError?: (error: string) => void;
 }
 
-interface Quote {
-  id: string;
-  baseCurrency: string;
-  targetCurrency: string;
-  baseAmount: string;
-  targetAmount: string;
-  exchangeRate: number;
-  fees: {
-    coinbaseFee: string;
-    networkFee: string;
-    total: string;
-  };
-  expiresAt: string;
-  paymentMethods: string[];
-  network: string;
-}
+// Coinbase Onramp SDK handles quotes internally
 
 const CoinbaseOnramp: React.FC<OnrampProps> = ({
   contentId,
@@ -34,68 +21,23 @@ const CoinbaseOnramp: React.FC<OnrampProps> = ({
   onSuccess,
   onError
 }) => {
-  const { account } = useWeb3();
-  const [quote, setQuote] = useState<Quote | null>(null);
+  const { account, provider, signer, chainId } = useWeb3();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [onrampUrl, setOnrampUrl] = useState<string | null>(null);
+  const networkConfig = getNetworkConfig();
 
-  // Generate quote when component mounts
+  // Component initialization - no need for quote generation as Onramp handles this
   useEffect(() => {
-    if (amount && currency) {
-      generateQuote();
-    }
+    setError(null);
   }, [amount, currency]);
 
-  const generateQuote = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await axios.post('/api/onramp/quote', {
-        baseCurrency: 'USD',
-        targetCurrency: currency,
-        amount: parseFloat(amount),
-        amountType: 'buy'
-      });
-
-      if (response.data.success) {
-        setQuote(response.data.data.quote);
-      } else {
-        setError(response.data.message || 'Failed to generate quote');
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to generate quote');
-      onError?.(err.response?.data?.message || 'Failed to generate quote');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const generateOnrampUrl = async () => {
+  // Buy with Real Money (Fiat) - Coinbase Onramp
+  const handleFiatPayment = async () => {
+    console.log('🚀 Starting Coinbase Onramp initialization...');
+    console.log('Account:', account);
+    
     if (!account) {
       setError('Please connect your wallet first');
-      return;
-    }
-
-    // Check if this is demo mode
-    const isDemoWallet = account === '0x1234567890123456789012345678901234567890';
-    
-    if (isDemoWallet) {
-      // Simulate successful onramp generation in demo mode
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        onSuccess?.({
-          onrampUrl: 'demo-mode',
-          transactionId: 'demo-onramp-' + Date.now(),
-          amount: amount,
-          currency: currency,
-          demo: true
-        });
-        
-        alert(`🎯 Demo Mode: Simulated ${amount} ${currency} purchase!\n\nIn production, this would open Coinbase Pay.\n\nTransaction ID: demo-onramp-${Date.now()}`);
-      }, 1000);
       return;
     }
 
@@ -103,154 +45,333 @@ const CoinbaseOnramp: React.FC<OnrampProps> = ({
       setLoading(true);
       setError(null);
 
-      const response = await axios.post('/api/onramp/generate-url', {
-        destinationWallet: account,
-        presetCryptoAmount: amount,
-        cryptoCurrencyCode: currency,
-        fiatCurrencyCode: 'USD',
-        country: 'US',
-        contentId
+      const appId = process.env.REACT_APP_COINBASE_PROJECT_ID || 'de44a0ba-d4ff-432c-85e7-e70336fe4837';
+      console.log('Using App ID:', appId);
+      
+      // First, get session token from backend
+      console.log('🎫 Requesting session token...');
+      const tokenResponse = await fetch('/api/onramp/session-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          walletAddress: account
+        })
       });
 
-      if (response.data.success) {
-        setOnrampUrl(response.data.data.onrampUrl);
-        
-        // Check if this is demo mode
-        if (response.data.data.demo || response.data.data.onrampUrl === 'demo-mode') {
-          // Handle demo mode - just show success without opening window
-          alert(`🎯 Demo Mode: Simulated ${amount} ${currency} purchase!\n\nIn production, this would open Coinbase Pay.\n\nDemo transaction completed successfully!`);
-          onSuccess?.(response.data.data);
-        } else {
-          // Open real Coinbase Pay in a new window
-          window.open(response.data.data.onrampUrl, '_blank', 'width=400,height=600');
-          onSuccess?.(response.data.data);
-        }
-      } else {
-        setError(response.data.message || 'Failed to generate onramp URL');
+      if (!tokenResponse.ok) {
+        throw new Error('Failed to get session token');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to generate onramp URL');
-      onError?.(err.response?.data?.message || 'Failed to generate onramp URL');
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const handleOneClickBuy = async () => {
-    if (!contentId) {
-      generateOnrampUrl();
-      return;
-    }
+      const tokenData = await tokenResponse.json();
+      if (!tokenData.success || !tokenData.data.sessionToken) {
+        throw new Error('Invalid session token response');
+      }
 
-    if (!account) {
-      setError('Please connect your wallet first');
-      return;
-    }
+      const sessionToken = tokenData.data.sessionToken;
+      console.log('✅ Session token received:', sessionToken.substring(0, 20) + '...');
 
-    // Check if this is demo mode
-    const isDemoWallet = account === '0x1234567890123456789012345678901234567890';
-    
-    if (isDemoWallet) {
-      // Simulate successful purchase in demo mode
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        onSuccess?.({
-          transactionId: 'demo-tx-' + Date.now(),
-          amount: amount,
-          currency: currency,
-          status: 'completed',
-          demo: true
-        });
-        
-        // Show demo success notification
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          background: linear-gradient(135deg, #10B981, #059669);
-          color: white;
-          padding: 16px 20px;
-          border-radius: 12px;
-          box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-          z-index: 10000;
-          font-family: system-ui, -apple-system, sans-serif;
-          font-weight: 500;
-          max-width: 300px;
-        `;
-        notification.innerHTML = `
-          <div style="display: flex; align-items: center; margin-bottom: 8px;">
-            <span style="font-size: 20px; margin-right: 8px;">🎯</span>
-            <strong>Demo Purchase Successful!</strong>
-          </div>
-          <div style="font-size: 14px; opacity: 0.9; line-height: 1.4;">
-            Amount: ${amount} ${currency}<br>
-            Transaction: Demo Mode<br>
-            <br>
-            <em>This was a simulated purchase!</em>
-          </div>
-        `;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
+      console.log('Widget Parameters:', {
+        addresses: { [account]: ['base'] },
+        assets: ['USDC', 'ETH'],
+        presetFiatAmount: parseInt(amount) || 25,
+        fiatCurrency: 'USD',
+        sessionToken: sessionToken.substring(0, 20) + '...'
+      });
+
+      // Initialize Coinbase Onramp with proper configuration
+      console.log('🎫 Configuring Onramp with session token...');
+      
+      // Always use the One-Click Buy URL format with session token
+      // Both sandbox and production require valid session tokens
+      const isSandbox = process.env.REACT_APP_USE_SANDBOX !== 'false';
+      const baseUrl = isSandbox 
+        ? 'https://pay-sandbox.coinbase.com'
+        : 'https://pay.coinbase.com';
+      
+      const onrampUrl: string = `${baseUrl}/buy?` +
+        `sessionToken=${encodeURIComponent(sessionToken)}&` +
+        `defaultAsset=USDC&` +
+        `defaultNetwork=base&` +
+        `presetFiatAmount=${parseInt(amount) || 25}&` +
+        `fiatCurrency=USD&` +
+        `defaultExperience=buy&` +
+        `partnerUserId=${account.substring(0, 50)}&` +
+        `redirectUrl=${encodeURIComponent(window.location.origin + '/payment/success')}`;
+      
+      console.log(`🔗 Direct Onramp URL (${isSandbox ? 'SANDBOX' : 'PRODUCTION'}):`, onrampUrl);
+      
+      // IMPORTANT: For secure initialization, we must use the sessionToken approach
+      // The SDK should NOT use appId with widgetParameters when sessionToken is present
+      const onrampConfig: any = {
+        // DO NOT include appId when using sessionToken - they are mutually exclusive
+        // appId: appId, // REMOVED - causes conflict with sessionToken
+        sessionToken: sessionToken, // This is the ONLY authentication needed
+        onSuccess: () => {
+          console.log('✅ Coinbase Onramp Success');
+          setLoading(false);
+          onSuccess?.({ success: true });
+        },
+        onExit: () => {
+          console.log('👋 Coinbase Onramp Exit');
+          setLoading(false);
+        },
+        onEvent: (event: any) => {
+          console.log('📊 Coinbase Onramp Event:', event);
+        },
+        experienceLoggedIn: 'popup',
+        closeOnExit: true,
+        experienceLoggedOut: 'popup'
+        // Note: widgetParameters are embedded in the sessionToken, not passed separately
+      };
+
+      console.log('🚀 Initializing Onramp with config:', {
+        hasSessionToken: !!onrampConfig.sessionToken,
+        sessionTokenPreview: onrampConfig.sessionToken?.substring(0, 30) + '...'
+      });
+
+      // Additional debug: Check if session token is properly formatted
+      if (!onrampConfig.sessionToken || onrampConfig.sessionToken.startsWith('dev_')) {
+        console.warn('⚠️ Using development session token - may not work in production');
+        console.log('Full session token:', onrampConfig.sessionToken);
+      }
+
+      // Try to initialize with SDK
+      try {
+        initOnRamp(onrampConfig, (error: any, instance: any) => {
+          console.log('📥 Callback received - Error:', error, 'Instance:', instance);
+          
+          if (error || !instance) {
+            console.error('❌ SDK initialization failed:', error);
+            console.log('🔗 Using direct URL approach with session token');
+            
+            // Always use the direct URL as fallback - it's more reliable
+            window.open(onrampUrl, '_blank');
+            setLoading(false);
+            onSuccess?.({ success: true, method: 'direct_url' });
+            return;
           }
-        }, 4000);
-      }, 1500);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await axios.post(`/api/onramp/content/${contentId}/buy-config`, {
-        destinationWallet: account
-      });
-
-      if (response.data.success) {
-        const { buyConfig } = response.data.data;
+          
+          if (instance) {
+            console.log('✅ Onramp instance created, opening widget...');
+            instance.open();
+          }
+        });
+      } catch (sdkError) {
+        console.error('❌ SDK error:', sdkError);
+        console.log('🔗 Opening direct URL with session token');
         
-        // Check if this is demo mode
-        if (buyConfig.demo || buyConfig.onrampUrl === 'demo-mode') {
-          // Handle demo mode - just show success without opening window
-          alert(`🎯 Demo Mode: Simulated purchase completed!\n\nAmount: ${buyConfig.amount} ${buyConfig.currency}\nContent ID: ${buyConfig.contentId}\n\nIn production, this would open Coinbase Pay.`);
-          onSuccess?.(buyConfig);
-        } else {
-          // Open real Coinbase Pay in a new window
-          window.open(buyConfig.onrampUrl, '_blank', 'width=400,height=600');
-          onSuccess?.(buyConfig);
-        }
-      } else {
-        setError(response.data.message || 'Failed to create buy configuration');
+        // Direct URL fallback
+        window.open(onrampUrl, '_blank');
+        setLoading(false);
+        onSuccess?.({ success: true, method: 'direct_url' });
       }
+      
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create buy configuration');
-      onError?.(err.response?.data?.message || 'Failed to create buy configuration');
-    } finally {
+      console.error('❌ Coinbase Onramp Error:', err);
+      setError(err.message || 'Failed to initialize Coinbase Onramp');
+      onError?.(err.message || 'Failed to initialize Coinbase Onramp');
       setLoading(false);
     }
   };
 
-  const isDemoWallet = account === '0x1234567890123456789012345678901234567890';
+  // Buy with Crypto (ETH) - Real Base Sepolia transaction
+  const handleCryptoPayment = async () => {
+    if (!account || !window.ethereum) {
+      setError('Please connect your Coinbase Wallet first');
+      return;
+    }
+
+    // Ensure we're on the correct network
+    if (chainId !== networkConfig.chainId) {
+      setError(`Please switch to ${networkConfig.name} (Chain ID: ${networkConfig.chainId})`);
+      return;
+    }
+
+    if (!provider || !signer) {
+      setError('Web3 provider not available');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Use connected wallet as receiver (user's wallet gets the test tokens)
+      const RECEIVER_ADDRESS = account; // User's connected wallet receives the tokens
+      
+      // Convert amount to ETH (assuming 1 USDC ≈ 0.001 ETH for demo)
+      const ethAmountNum = parseFloat(amount) * 0.001;
+      const ethAmount = ethAmountNum.toFixed(6); // Limit to 6 decimal places to avoid precision errors
+      const amountInWei = ethers.parseEther(ethAmount);
+
+      // Check ETH balance first
+      const balance = await provider.getBalance(account);
+      const balanceFormatted = ethers.formatEther(balance);
+      
+      if (parseFloat(balanceFormatted) < parseFloat(ethAmount)) {
+        throw new Error(`Insufficient ETH balance. You have ${parseFloat(balanceFormatted).toFixed(4)} ETH but need ${ethAmount} ETH. Get Base Sepolia ETH from a faucet first.`);
+      }
+
+      // Estimate gas for a simple ETH transfer
+      const gasEstimate = await provider.estimateGas({
+        to: RECEIVER_ADDRESS,
+        value: amountInWei
+      });
+      
+      // Execute the ETH transaction
+      console.log(`🚀 Sending ${ethAmount} ETH (${amount} USDC equivalent) to ${RECEIVER_ADDRESS} on Base Sepolia...`);
+      const tx = await signer.sendTransaction({
+        to: RECEIVER_ADDRESS,
+        value: amountInWei,
+        gasLimit: gasEstimate
+      });
+
+      console.log('📝 Transaction submitted:', tx.hash);
+      
+      // Show pending notification
+      const pendingNotification = document.createElement('div');
+      pendingNotification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        padding: 16px 20px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        z-index: 10000;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-weight: 500;
+        max-width: 400px;
+      `;
+      pendingNotification.innerHTML = `
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 20px; margin-right: 8px;">⏳</span>
+          <strong>Transaction Pending...</strong>
+        </div>
+        <div style="font-size: 14px; opacity: 0.9; line-height: 1.4;">
+          <strong>TX Hash:</strong> ${tx.hash.slice(0, 10)}...<br>
+          <strong>Amount:</strong> ${ethAmount} ETH (${amount} USDC equivalent)<br>
+          <strong>Network:</strong> Base Sepolia<br>
+          <br>
+          <em>Waiting for confirmation...</em>
+        </div>
+      `;
+      document.body.appendChild(pendingNotification);
+
+      // Wait for transaction to be mined
+      console.log('⏳ Waiting for transaction confirmation...');
+      const receipt = await tx.wait();
+      
+      // Remove pending notification
+      if (pendingNotification.parentNode) {
+        pendingNotification.parentNode.removeChild(pendingNotification);
+      }
+
+      if (!receipt) {
+        throw new Error('Transaction receipt not received');
+      }
+
+      console.log('✅ Transaction confirmed!', receipt);
+
+      const transactionData = {
+        transactionHash: receipt!.hash,
+        blockNumber: receipt!.blockNumber,
+        from: receipt!.from,
+        to: receipt!.to,
+        gasUsed: receipt!.gasUsed.toString(),
+        status: receipt!.status === 1 ? 'success' : 'failed',
+        value: amount,
+        currency: currency,
+        network: networkConfig.name,
+        chainId: networkConfig.chainId,
+        timestamp: new Date().toISOString(),
+        baseScanUrl: `${networkConfig.blockExplorerUrl}/tx/${receipt!.hash}`
+      };
+
+      // Show success notification
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 16px 20px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        z-index: 10000;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-weight: 500;
+        max-width: 400px;
+      `;
+      notification.innerHTML = `
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 20px; margin-right: 8px;">✅</span>
+          <strong>Transaction Success!</strong>
+        </div>
+        <div style="font-size: 14px; opacity: 0.9; line-height: 1.4;">
+          <strong>TX Hash:</strong> ${receipt!.hash.slice(0, 10)}...<br>
+          <strong>Block:</strong> ${receipt!.blockNumber}<br>
+          <strong>Amount:</strong> ${ethAmount} ETH (${amount} USDC equivalent)<br>
+          <strong>Network:</strong> Base Sepolia<br>
+          <strong>Gas Used:</strong> ${receipt!.gasUsed.toString()}<br>
+          <br>
+          <a href="https://sepolia.basescan.org/tx/${receipt!.hash}" 
+             target="_blank" 
+             style="color: #87CEEB; text-decoration: underline;">
+            🔍 View on BaseScan →
+          </a>
+        </div>
+      `;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 10000);
+
+      // Call success callback
+      onSuccess?.(transactionData);
+      
+      console.log('🎉 Real Base Sepolia transaction completed:', transactionData);
+
+    } catch (err: any) {
+      console.error('❌ Transaction failed:', err);
+      
+      let errorMessage = 'Transaction failed';
+      if (err.message.includes('insufficient funds')) {
+        errorMessage = 'Insufficient ETH for gas fees. Get Base Sepolia ETH from a faucet.';
+      } else if (err.message.includes('Insufficient ETH balance')) {
+        errorMessage = err.message;
+      } else if (err.message.includes('user rejected')) {
+        errorMessage = 'Transaction was rejected by user';
+      } else {
+        errorMessage = err.message || 'Unknown transaction error';
+      }
+      
+      setError(errorMessage);
+      onError?.(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Buy Crypto</h3>
         <div className="flex items-center space-x-2">
-          {isDemoWallet && (
-            <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
-              Demo Mode
-            </span>
-          )}
-          <img 
-            src="https://cdn.jsdelivr.net/gh/coinbase/coinbase-kit@main/assets/coinbase-logo.svg" 
-            alt="Coinbase" 
-            className="h-6"
-          />
+          <div className="flex items-center bg-blue-600 text-white px-3 py-1 rounded-lg">
+            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" fill="currentColor"/>
+              <circle cx="12" cy="12" r="6" fill="white"/>
+            </svg>
+            <span className="text-sm font-bold">Base Sepolia</span>
+          </div>
         </div>
       </div>
 
@@ -260,28 +381,18 @@ const CoinbaseOnramp: React.FC<OnrampProps> = ({
         </div>
       )}
 
-      {quote && (
-        <div className="bg-gray-50 rounded-lg p-4 mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">You pay</span>
-            <span className="font-semibold">${quote.baseAmount} {quote.baseCurrency}</span>
-          </div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">You receive</span>
-            <span className="font-semibold">{quote.targetAmount} {quote.targetCurrency}</span>
-          </div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Exchange rate</span>
-            <span className="text-sm">1 {quote.baseCurrency} = {quote.exchangeRate.toFixed(4)} {quote.targetCurrency}</span>
-          </div>
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-600">Total fees</span>
-            <span>${quote.fees.total}</span>
+      {/* Coinbase Onramp Widget handles pricing and quotes internally */}
+      <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-200">
+        <div className="flex items-center">
+          <div className="text-blue-600 text-xl mr-3">💳</div>
+          <div>
+            <div className="font-semibold text-blue-900">Buy ${amount} worth of {currency}</div>
+            <div className="text-sm text-blue-700">Coinbase Onramp will show live rates and fees</div>
           </div>
         </div>
-      )}
+      </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {!account ? (
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-3">Connect your wallet to continue</p>
@@ -291,60 +402,72 @@ const CoinbaseOnramp: React.FC<OnrampProps> = ({
           </div>
         ) : (
           <>
-            {isDemoWallet && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
-                <p className="text-yellow-800 text-sm flex items-center">
-                  <span className="mr-2">🎯</span>
-                  <strong>Demo Mode:</strong> This will simulate a purchase without real transactions
-                </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <p className="text-blue-800 text-sm">
+                <strong>ℹ️ Base Sepolia Testnet:</strong><br/>
+                • Get free testnet ETH: <a href="https://www.alchemy.com/faucets/base-sepolia" target="_blank" rel="noreferrer" className="underline">Alchemy Faucet</a><br/>
+                • Network: Base Sepolia (Chain ID: 84532)
+              </p>
+            </div>
+
+            {/* Buy with Real Money (Fiat) Button */}
+            <button
+              onClick={handleFiatPayment}
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center font-semibold text-lg transition-all duration-200 shadow-lg"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Opening Coinbase Onramp...
+                </>
+              ) : (
+                <>
+                  💳 Buy with Real Money (Coinbase Onramp)
+                </>
+              )}
+            </button>
+
+            {/* OR Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
               </div>
-            )}
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-white px-3 text-gray-500 font-medium">OR</span>
+              </div>
+            </div>
 
-            {contentId ? (
-              <button
-                onClick={handleOneClickBuy}
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              >
-                {loading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    {isDemoWallet ? '🎯 Demo Purchase' : '🚀 Buy Now with Crypto'}
-                  </>
-                )}
-              </button>
-            ) : (
-              <button
-                onClick={generateOnrampUrl}
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-              >
-                {loading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    {isDemoWallet ? '🎯 Demo Buy ' + currency : '💳 Buy ' + currency + ' with Coinbase'}
-                  </>
-                )}
-              </button>
-            )}
+            {/* Buy with Crypto (ETH) Button */}
+            <button
+              onClick={handleCryptoPayment}
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 px-6 rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center font-semibold text-lg transition-all duration-200 shadow-lg"
+              title="Use your wallet ETH to purchase"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Processing Transaction...
+                </>
+              ) : (
+                <>
+                  ⚡ Buy with Crypto (ETH)
+                </>
+              )}
+            </button>
 
-            <p className="text-xs text-gray-500 text-center">
-              Powered by Coinbase Pay • Secure & Fast
-            </p>
+            <div className="text-center">
+              <p className="text-xs text-gray-500">
+                Powered by Coinbase Onramp • Secure Fiat-to-Crypto Transactions
+              </p>
+            </div>
           </>
         )}
       </div>

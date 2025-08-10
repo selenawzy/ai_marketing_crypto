@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useWeb3 } from '../contexts/Web3Context';
 import CoinbaseOnramp from '../components/CoinbaseOnramp';
@@ -86,17 +86,40 @@ const ContentDetail: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="p-8">
-            {/* Wallet Status Header */}
-            <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-100">
-              <div className="text-sm text-gray-600">
-                <span>Content Details</span>
-              </div>
-              <WalletConnect />
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <Link to="/" className="flex items-center">
+                <div className="h-8 w-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+                  <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h1 className="text-xl font-semibold text-gray-900">AI Marketing Crypto</h1>
+              </Link>
             </div>
+            <nav className="flex space-x-4 items-center">
+              <Link to="/browse" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                Browse
+              </Link>
+              {isAuthenticated && (
+                <Link to="/dashboard" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                  Dashboard
+                </Link>
+              )}
+              <WalletConnect />
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="p-8">
 
             <div className="flex justify-between items-start mb-6">
               <div>
@@ -220,6 +243,7 @@ const ContentDetail: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

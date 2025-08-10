@@ -107,7 +107,7 @@ router.get('/', async (req, res) => {
         const offset = (page - 1) * limit;
 
         let query = db('ai_agents')
-            .join('users', 'ai_agents.user_id', 'users.id')
+            .leftJoin('users', 'ai_agents.user_id', 'users.id')
             .select(
                 'ai_agents.*',
                 'users.username as owner_username'
@@ -127,10 +127,17 @@ router.get('/', async (req, res) => {
             .limit(limit)
             .offset(offset);
 
+        // Fix BigInt serialization
+        const serializedAgents = agents.map(agent => 
+            JSON.parse(JSON.stringify(agent, (key, value) =>
+                typeof value === 'bigint' ? value.toString() : value
+            ))
+        );
+
         res.json({
             success: true,
             data: {
-                agents,
+                agents: serializedAgents,
                 pagination: {
                     page: parseInt(page),
                     limit: parseInt(limit),
